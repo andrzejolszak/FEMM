@@ -45,6 +45,8 @@ class CFemmeView : public CView {
   double wzx, wzy;
   double MaxSeg, ArcAngle;
 
+  BOOL UiTweaks;
+
   // Colors used to render the view
   COLORREF SelColor;
   COLORREF MeshColor;

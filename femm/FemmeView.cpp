@@ -154,6 +154,8 @@ CFemmeView::CFemmeView()
   SelectCircFlag = FALSE;
   MaxSeg = 1.0;
   ArcAngle = 90.0;
+
+  UiTweaks = TRUE;
 }
 
 void CFemmeView::OnNewDocument()
@@ -2439,8 +2441,11 @@ void CFemmeView::OnMakeMesh()
     if (TheDoc->greymeshline.GetSize() != 0)
       s += "\nGrey mesh lines denote regions\nthat have no block label.";
     if (bLinehook == FALSE)
-      // AO
-      AfxMessageBox(s, MB_ICONINFORMATION);
+        if (UiTweaks) {
+            StatBar->SetPaneText(0, s, TRUE);
+        } else {
+            AfxMessageBox(s, MB_ICONINFORMATION);
+        }
     else
       lua_pushnumber(lua, (int)TheDoc->meshnode.GetSize());
   }
