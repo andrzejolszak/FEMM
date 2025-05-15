@@ -122,6 +122,8 @@ CFemmviewView::CFemmviewView()
 {
   ((CFemmApp*)AfxGetApp())->NumViews++;
 
+  UiTweaks = TRUE;
+
   // TODO: add construction code here
   d_EditAction = 0;
   d_GridFlag = FALSE;
@@ -149,6 +151,11 @@ CFemmviewView::CFemmviewView()
   ZoomWndFlag = FALSE;
   DrawSelected = -1;
   VectorScaleFactor = 1;
+
+  if (UiTweaks) {
+    d_DensityPlot = 1;
+    d_VectorPlot = 1;
+  }
 
   //////////////////////////////
   // Default Colors           //
@@ -218,6 +225,7 @@ CFemmviewView::CFemmviewView()
   BinDir = ((CFemmApp*)AfxGetApp())->GetExecutablePath();
 
   ScanPreferences();
+
 
   // Apply default behaviors
   EditAction = d_EditAction;

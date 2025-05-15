@@ -61,6 +61,8 @@ class CFemmviewView : public CView {
   int DensityPlot;
   CString OutputWindowText;
 
+  BOOL UiTweaks;
+
   CArray<CPixel, CPixel&> LinePix;
   CArray<CZPix, CZPix&> ZoomPix;
 

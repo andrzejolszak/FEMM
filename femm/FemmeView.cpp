@@ -111,6 +111,8 @@ CFemmeView::CFemmeView()
 {
   ((CFemmApp*)AfxGetApp())->NumViews++;
 
+  UiTweaks = TRUE;
+
   // Default Colors
   SelColor = dSelColor;
   MeshColor = dMeshColor;
@@ -154,8 +156,6 @@ CFemmeView::CFemmeView()
   SelectCircFlag = FALSE;
   MaxSeg = 1.0;
   ArcAngle = 90.0;
-
-  UiTweaks = TRUE;
 }
 
 void CFemmeView::OnNewDocument()
@@ -1552,6 +1552,20 @@ void CFemmeView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 
   if (((nChar == 'z') || (nChar == 'Z')) && (GetKeyState(VK_CONTROL)))
     OnUndo();
+
+  if (UiTweaks) {
+    if (nChar == '1')
+      OnMakeMesh();
+    if (nChar == '2')
+      OnMenuAnalyze();
+    if (nChar == '3')
+      OnMenuViewres();
+    if (nChar == VK_F5) { 
+      OnMakeMesh();
+      OnMenuAnalyze();
+      OnMenuViewres();
+    }
+  }
 
   if (nChar == VK_LEFT)
     OnPanLeft();
