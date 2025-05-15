@@ -509,6 +509,7 @@ BOOL CFemmeView::DwgToScreen(double xd, double yd, int* xs, int* ys, RECT* r)
   return TRUE;
 }
 
+// AO
 void CFemmeView::OnDraw(CDC* pDC)
 {
   CFemmeDoc* pDoc = GetDocument();
@@ -1540,6 +1541,7 @@ void CFemmeView::OnEditCopy()
   CloseClipboard();
 }
 
+// AO
 void CFemmeView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 {
   // TODO: Add your message handler code here and/or call default
@@ -2433,10 +2435,11 @@ void CFemmeView::OnMakeMesh()
     else
       InvalidateRect(NULL);
     CString s;
-    s.Format("Created mesh with %i nodes", TheDoc->meshnode.GetSize());
+    s.Format("Created mesh femme with %i nodes", TheDoc->meshnode.GetSize());
     if (TheDoc->greymeshline.GetSize() != 0)
       s += "\nGrey mesh lines denote regions\nthat have no block label.";
     if (bLinehook == FALSE)
+      // AO
       AfxMessageBox(s, MB_ICONINFORMATION);
     else
       lua_pushnumber(lua, (int)TheDoc->meshnode.GetSize());
@@ -2676,6 +2679,7 @@ void CFemmeView::OnKbdZoom()
   }
 }
 
+// AO
 void CFemmeView::OnMoveObjects()
 {
   CCopyDlg dlg;
@@ -3255,6 +3259,7 @@ void WriteColor(char* cname, COLORREF c, FILE* fp)
       GetRValue(c), GetGValue(c), GetBValue(c));
 }
 
+// AO
 BOOL CFemmeView::WritePreferences()
 {
   FILE* fp;

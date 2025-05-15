@@ -98,6 +98,7 @@ void CGeneralPrefs::ScanPrefs()
   }
 }
 
+// AO
 void CGeneralPrefs::WritePrefs()
 {
   FILE* fp;
