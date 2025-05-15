@@ -1556,14 +1556,43 @@ void CFemmeView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
   if (UiTweaks) {
     if (nChar == '1')
       OnMakeMesh();
+    
     if (nChar == '2')
       OnMenuAnalyze();
+    
     if (nChar == '3')
       OnMenuViewres();
+    
     if (nChar == VK_F5) { 
       OnMakeMesh();
       OnMenuAnalyze();
       OnMenuViewres();
+    }
+
+    // Translate
+    double increment = 0.1;
+    double deltaX = 0;
+    double deltaY = 0;
+    if (nChar == 'w' || nChar == 'W')
+      deltaY = increment;
+
+    if (nChar == 's' || nChar == 'S')
+      deltaY = -increment;
+    
+    if (nChar == 'a' || nChar == 'A')
+      deltaX = -increment;
+    
+    if (nChar == 'd' || nChar == 'D')
+      deltaX = increment;
+
+    if (deltaX != 0 || deltaY != 0) {
+      pDoc->UpdateUndo();
+      pDoc->TranslateMove(deltaX, deltaY, EditAction, FALSE);
+      pDoc->meshnode.RemoveAll();
+      pDoc->meshline.RemoveAll();
+      MeshFlag = FALSE;
+      MeshUpToDate = FALSE;
+      InvalidateRect(NULL);
     }
   }
 

@@ -101,8 +101,8 @@ class CFemmeDoc : public CDocument {
   BOOL AddArcSegment(CArcSegment& asegm, double tol = 0);
   BOOL AddBlockLabel(double x, double y, double d);
   BOOL AddNode(CNode& node, double d);
-  BOOL AddSegment(CComplex p0, CComplex p1, CSegment& segm, double tol = 0);
-  BOOL AddArcSegment(CComplex p0, CComplex p1, CArcSegment& asegm, double tol = 0);
+  BOOL AddSegment(CComplex p0, CComplex p1, CSegment& segm, double tol = 0, BOOL unselectAll = TRUE);
+  BOOL AddArcSegment(CComplex p0, CComplex p1, CArcSegment& asegm, double tol = 0, BOOL unselectAll = TRUE);
   BOOL AddBlockLabel(CBlockLabel& blabel, double d);
   int ClosestNode(double x, double y);
   int ClosestBlockLabel(double x, double y);
@@ -114,7 +114,7 @@ class CFemmeDoc : public CDocument {
   int GetArcArcIntersection(CArcSegment& arc1, CArcSegment& arc2, CComplex* p);
   double ShortestDistanceFromArc(CComplex p, CArcSegment& arc);
   void RotateMove(CComplex c, double t, int EditAction);
-  void TranslateMove(double dx, double dy, int EditAction);
+  void TranslateMove(double dx, double dy, int EditAction, BOOL unselectAll = TRUE);
   void ScaleMove(double bx, double by, double sf, int EditAction);
   void MirrorSelected(double x0, double y0, double x1, double y1, int ea);
   void RotateCopy(CComplex c, double t, int ncopies, int EditAction);
@@ -142,8 +142,8 @@ class CFemmeDoc : public CDocument {
 
   void UpdateUndo();
   void Undo();
-  void EnforcePSLG(); // makes sure that everything is kosher...
-  void EnforcePSLG(double tol);
+  void EnforcePSLG(BOOL unselectAll = TRUE); // makes sure that everything is kosher...
+  void EnforcePSLG(double tol, BOOL unselectAll = TRUE);
   void FancyEnforcePSLG(double tol);
   BOOL SelectOrphans();
   BOOL dxf_line_hook();

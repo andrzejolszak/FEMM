@@ -800,7 +800,7 @@ void CFemmeDoc::RotateMove(CComplex c, double t, int EditAction)
   }
 }
 
-void CFemmeDoc::TranslateMove(double dx, double dy, int EditAction)
+void CFemmeDoc::TranslateMove(double dx, double dy, int EditAction, BOOL unselectAll)
 {
   int i;
 
@@ -811,7 +811,7 @@ void CFemmeDoc::TranslateMove(double dx, double dy, int EditAction)
         nodelist[i].y += dy;
       }
     }
-    EnforcePSLG();
+    EnforcePSLG(unselectAll);
     return;
   }
 
@@ -822,7 +822,7 @@ void CFemmeDoc::TranslateMove(double dx, double dy, int EditAction)
         nodelist[linelist[i].n1].IsSelected = TRUE;
       }
     }
-    TranslateMove(dx, dy, 0);
+    TranslateMove(dx, dy, 0, unselectAll);
     return;
   }
 
@@ -833,7 +833,7 @@ void CFemmeDoc::TranslateMove(double dx, double dy, int EditAction)
         blocklist[i].y += dy;
       }
     }
-    EnforcePSLG();
+    EnforcePSLG(unselectAll);
     return;
   }
 
@@ -844,7 +844,7 @@ void CFemmeDoc::TranslateMove(double dx, double dy, int EditAction)
         nodelist[arclist[i].n1].IsSelected = TRUE;
       }
     }
-    TranslateMove(dx, dy, 0);
+    TranslateMove(dx, dy, 0, unselectAll);
     return;
   }
 
@@ -877,7 +877,7 @@ void CFemmeDoc::TranslateMove(double dx, double dy, int EditAction)
       }
     }
 
-    EnforcePSLG();
+    EnforcePSLG(unselectAll);
     return;
   }
 }
@@ -1277,12 +1277,12 @@ void CFemmeDoc::TranslateCopy(double incx, double incy, int ncopies, int EditAct
   return;
 }
 
-void CFemmeDoc::EnforcePSLG()
+void CFemmeDoc::EnforcePSLG(BOOL unselectAll)
 {
-  EnforcePSLG(0);
+  EnforcePSLG(0, unselectAll);
 }
 
-void CFemmeDoc::EnforcePSLG(double tol)
+void CFemmeDoc::EnforcePSLG(double tol, BOOL unselectAll)
 {
   /*  need to enforce:
     1) no duplicate point;
@@ -1352,21 +1352,23 @@ void CFemmeDoc::EnforcePSLG(double tol)
   for (i = 0; i < newlinelist.GetSize(); i++) {
     p0.Set(newnodelist[newlinelist[i].n0].x, newnodelist[newlinelist[i].n0].y);
     p1.Set(newnodelist[newlinelist[i].n1].x, newnodelist[newlinelist[i].n1].y);
-    AddSegment(p0, p1, newlinelist[i], d);
+    AddSegment(p0, p1, newlinelist[i], d, unselectAll);
   }
 
   // put in all of the arcs;
   for (i = 0; i < newarclist.GetSize(); i++) {
     p0.Set(newnodelist[newarclist[i].n0].x, newnodelist[newarclist[i].n0].y);
     p1.Set(newnodelist[newarclist[i].n1].x, newnodelist[newarclist[i].n1].y);
-    AddArcSegment(p0, p1, newarclist[i], d);
+    AddArcSegment(p0, p1, newarclist[i], d, unselectAll);
   }
 
   // put in all of the block labels;
   for (i = 0; i < newblocklist.GetSize(); i++)
     AddBlockLabel(newblocklist[i], d);
 
-  UnselectAll();
+  if (unselectAll) {
+    UnselectAll();
+  }
   return;
 }
 
@@ -1427,7 +1429,7 @@ BOOL CFemmeDoc::AddNode(CNode& node, double d)
   return TRUE;
 }
 
-BOOL CFemmeDoc::AddSegment(CComplex p0, CComplex p1, CSegment& segm, double tol)
+BOOL CFemmeDoc::AddSegment(CComplex p0, CComplex p1, CSegment& segm, double tol, BOOL unselectAll)
 {
   int i, j, k, n0, n1;
   double xi, yi, t;
@@ -1501,7 +1503,10 @@ BOOL CFemmeDoc::AddSegment(CComplex p0, CComplex p1, CSegment& segm, double tol)
   // if so, delete line and create lines that link intermediate points;
   // does this by recursive use of AddSegment;
   double d, dmin;
-  UnselectAll();
+
+  if (unselectAll)
+    UnselectAll();
+  
   if (tol == 0)
     dmin = abs(nodelist[n1].CC() - nodelist[n0].CC()) * 1.e-05;
   else
@@ -1529,7 +1534,7 @@ BOOL CFemmeDoc::AddSegment(CComplex p0, CComplex p1, CSegment& segm, double tol)
   return TRUE;
 }
 
-BOOL CFemmeDoc::AddArcSegment(CComplex p0, CComplex p1, CArcSegment& asegm, double tol)
+BOOL CFemmeDoc::AddArcSegment(CComplex p0, CComplex p1, CArcSegment& asegm, double tol, BOOL unselectAll)
 {
 
   int i, j, k;
@@ -1606,7 +1611,9 @@ BOOL CFemmeDoc::AddArcSegment(CComplex p0, CComplex p1, CArcSegment& asegm, doub
   // check to see if proposed arc passes through other points;
   // if so, delete arc and create arcs that link intermediate points;
   // does this by recursive use of AddArcSegment;
-  UnselectAll();
+  if (unselectAll)
+    UnselectAll();
+  
   GetCircle(asegm, c, R);
   if (tol == 0)
     dmin = fabs(R * PI * asegm.ArcLength / 180.) * 1.e-05;
