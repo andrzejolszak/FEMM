@@ -45,6 +45,7 @@ ON_COMMAND(ID_NODE_OP, OnNodeOp)
 ON_COMMAND(ID_SEGMENT_OP, OnSegmentOp)
 ON_COMMAND(ID_BLOCK_OP, OnBlockOp)
 ON_WM_MOUSEMOVE()
+ON_WM_MOUSEWHEEL()
 ON_COMMAND(ID_ZOOM_IN, OnZoomIn)
 ON_COMMAND(ID_ZOOM_OUT, OnZoomOut)
 ON_COMMAND(ID_SHOW_GRID, OnShowGrid)
@@ -60,6 +61,7 @@ ON_COMMAND(ID_ZOOM_WINDOW, OnZoomWnd)
 ON_WM_LBUTTONDOWN()
 ON_WM_LBUTTONUP()
 ON_WM_RBUTTONDOWN()
+ON_WM_MBUTTONDOWN()
 ON_COMMAND(ID_MAKE_MESH, OnMakeMesh)
 ON_COMMAND(ID_MENU_ANALYZE, OnMenuAnalyze)
 ON_COMMAND(ID_MENU_VIEWRES, OnMenuViewres)
@@ -1097,6 +1099,19 @@ void CFemmeView::OnGroupOp()
   DrawPSLG();
 }
 
+BOOL CFemmeView::OnMouseWheel(UINT nFlags, short delta, CPoint point)
+{
+  if (UiTweaks && delta > 0) {
+    OnZoomIn();
+  }
+
+  if (UiTweaks && delta < 0) {
+    OnZoomOut();
+  }
+
+  return CView::OnMouseWheel(nFlags, delta, point);
+}
+
 void CFemmeView::OnMouseMove(UINT nFlags, CPoint point)
 {
   if ((bLinehook == NormalLua) || (bLinehook == HiddenLua)) {
@@ -1139,6 +1154,7 @@ void CFemmeView::OnMouseMove(UINT nFlags, CPoint point)
     y = GridSize * floor(0.5 + y / GridSize);
   }
 
+  // AO selection
   if ((ZoomWndFlag == 2) || (SelectWndFlag == 2)) {
 
     CDC* pDC = GetDC();
@@ -1556,14 +1572,14 @@ void CFemmeView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
   if (UiTweaks) {
     if (nChar == '1')
       OnMakeMesh();
-    
+
     if (nChar == '2')
       OnMenuAnalyze();
-    
+
     if (nChar == '3')
       OnMenuViewres();
-    
-    if (nChar == VK_F5) { 
+
+    if (nChar == VK_F5) {
       OnMakeMesh();
       OnMenuAnalyze();
       OnMenuViewres();
@@ -1578,10 +1594,10 @@ void CFemmeView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 
     if (nChar == 's' || nChar == 'S')
       deltaY = -increment;
-    
+
     if (nChar == 'a' || nChar == 'A')
       deltaX = -increment;
-    
+
     if (nChar == 'd' || nChar == 'D')
       deltaX = increment;
 
@@ -1780,6 +1796,15 @@ void CFemmeView::EnterPoint()
         DrawPSLG();
     }
   }
+}
+
+void CFemmeView::OnMButtonDown(UINT nFlags, CPoint point)
+{
+  if (UiTweaks) {
+    OnZoomNatural();
+  }
+
+  CView::OnMButtonDown(nFlags, point);
 }
 
 void CFemmeView::OnLButtonDown(UINT nFlags, CPoint point)
@@ -2484,11 +2509,11 @@ void CFemmeView::OnMakeMesh()
     if (TheDoc->greymeshline.GetSize() != 0)
       s += "\nGrey mesh lines denote regions\nthat have no block label.";
     if (bLinehook == FALSE)
-        if (UiTweaks) {
-            StatBar->SetPaneText(0, s, TRUE);
-        } else {
-            AfxMessageBox(s, MB_ICONINFORMATION);
-        }
+      if (UiTweaks) {
+        StatBar->SetPaneText(0, s, TRUE);
+      } else {
+        AfxMessageBox(s, MB_ICONINFORMATION);
+      }
     else
       lua_pushnumber(lua, (int)TheDoc->meshnode.GetSize());
   }
