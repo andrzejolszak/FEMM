@@ -251,6 +251,11 @@ void CFemmviewDoc::Dump(CDumpContext& dc) const
 
 BOOL CFemmviewDoc::OnOpenDocument(LPCTSTR lpszPathName)
 {
+  return this->OnOpenDocument(lpszPathName, TRUE);
+}
+
+BOOL CFemmviewDoc::OnOpenDocument(LPCTSTR lpszPathName, BOOL updateBounds)
+{
   if (!CDocument::OnOpenDocument(lpszPathName))
     return FALSE;
 
@@ -1418,6 +1423,7 @@ BOOL CFemmviewDoc::OnOpenDocument(LPCTSTR lpszPathName)
     }
 
   // find extreme values of J;
+  if (updateBounds)
   {
     CComplex Jelm[3], Aelm[3];
 
@@ -1475,6 +1481,7 @@ BOOL CFemmviewDoc::OnOpenDocument(LPCTSTR lpszPathName)
   }
 
   // Find extreme values of B and H;
+  if (updateBounds)
   {
     double Br_Low, Br_High;
     double Bi_Low, Bi_High;
@@ -2517,7 +2524,7 @@ void CFemmviewDoc::OnReload()
   if (pname.GetLength() > 0) {
     OnNewDocument();
     SetPathName(pname, FALSE);
-    OnOpenDocument(pname);
+    OnOpenDocument(pname, !UiTweaks);
   }
 }
 

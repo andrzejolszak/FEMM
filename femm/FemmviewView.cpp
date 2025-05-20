@@ -925,6 +925,7 @@ void CFemmviewView::OnDraw(CDC* pDC)
   if (pDoc->FirstDraw < 0) {
     pDoc->Smooth = d_Smooth;
     pDoc->FirstDraw = FALSE;
+    pDoc->UiTweaks = UiTweaks;
   }
 
   if (pDoc->FirstDraw == TRUE) {

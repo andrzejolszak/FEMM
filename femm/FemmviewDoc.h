@@ -33,6 +33,7 @@ class CFemmviewDoc : public CDocument {
   BOOL bMultiplyDefinedLabels;
   int WeightingScheme;
   double extRo, extRi, extZo;
+  BOOL UiTweaks;
 
   double A_High, A_Low;
   double A_lb, A_ub;
@@ -146,6 +147,7 @@ class CFemmviewDoc : public CDocument {
   virtual BOOL OnNewDocument();
   virtual void Serialize(CArchive& ar);
   virtual BOOL OnOpenDocument(LPCTSTR lpszPathName);
+  virtual BOOL OnOpenDocument(LPCTSTR lpszPathName, BOOL updateBounds);
   virtual BOOL OnCmdMsg(UINT nID, int nCode, void* pExtra, AFX_CMDHANDLERINFO* pHandlerInfo);
   //}}AFX_VIRTUAL
 
