@@ -1566,7 +1566,7 @@ void CFemmeView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
   // VK_TAB, VK_DELETE -- ones that we want to catch
   CFemmeDoc* pDoc = GetDocument();
 
-  if (((nChar == 'z') || (nChar == 'Z')) && (GetKeyState(VK_CONTROL)))
+  if (((nChar == 'z') || (nChar == 'Z')) && (GetKeyState(VK_CONTROL) & 0x8000))
     OnUndo();
 
   if (UiTweaks) {
@@ -1586,7 +1586,12 @@ void CFemmeView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
     }
 
     // Translate
-    double increment = 0.1;
+
+    double increment = GridSize / 10;
+    if (GetKeyState(VK_SHIFT) & 0x8000) {
+      increment = GridSize;
+    }
+
     double deltaX = 0;
     double deltaY = 0;
     if (nChar == 'w' || nChar == 'W')
