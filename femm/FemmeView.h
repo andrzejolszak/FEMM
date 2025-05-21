@@ -43,6 +43,7 @@ class CFemmeView : public CView {
   int SelectCircFlag;
   int CreateRadiusFlag;
   double wzx, wzy;
+  int placingNode;
   double MaxSeg, ArcAngle;
 
   BOOL UiTweaks;

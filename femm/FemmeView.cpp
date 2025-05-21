@@ -1203,38 +1203,60 @@ void CFemmeView::OnMouseMove(UINT nFlags, CPoint point)
     y = GridSize * floor(0.5 + y / GridSize);
   }
 
-  // AO TODO
-  if (SelectWndFlag == 0)
+  if (placingNode > 0)
   {
-    CDC* pDC = GetDC();
-    RECT re;
-    GetClientRect(&re);
-    int xsi, ysi, xsn, ysn;
-    DwgToScreen(mx, my, &xsi, &ysi, &re);
-    DwgToScreen(x, y, &xsn, &ysn, &re);
+    if ((nFlags & MK_LBUTTON) == MK_LBUTTON) {
+      CDC* pDC = GetDC();
+      RECT re;
+      COLORREF ocol;
+      GetClientRect(&re);
+      int xsi, ysi, xsn, ysn;
+      DwgToScreen(mx, my, &xsi, &ysi, &re);
+      DwgToScreen(x, y, &xsn, &ysn, &re);
 
-    COLORREF ocol;
-    ocol = pDC->GetPixel(xsi - 3, ysi);
-    pDC->SetPixel(xsi - 3, ysi, ocol ^ RGB(255, 255, 255));
-    ocol = pDC->GetPixel(xsn - 3, ysn);
-    pDC->SetPixel(xsn - 3, ysn, ocol ^ RGB(255, 255, 255));
+      if (placingNode == 2) {
+        // Erase previous
+        for (int i = 0; i < 5; i++) {
+          ocol = pDC->GetPixel(xsi - 2 + i, ysi + 2);
+          pDC->SetPixel(xsi - 2 + i, ysi + 2, ocol ^ RGB(255, 255, 255));
 
-    ocol = pDC->GetPixel(xsi + 3, ysi);
-    pDC->SetPixel(xsi + 3, ysi, ocol ^ RGB(255, 255, 255));
-    ocol = pDC->GetPixel(xsn + 3, ysn);
-    pDC->SetPixel(xsn + 3, ysn, ocol ^ RGB(255, 255, 255));
+          ocol = pDC->GetPixel(xsi - 2 + i, ysi - 2);
+          pDC->SetPixel(xsi - 2 + i, ysi - 2, ocol ^ RGB(255, 255, 255));
+        }
 
-    ocol = pDC->GetPixel(xsi, ysi - 3);
-    pDC->SetPixel(xsi, ysi - 3, ocol ^ RGB(255, 255, 255));
-    ocol = pDC->GetPixel(xsn, ysn - 3);
-    pDC->SetPixel(xsn, ysn - 3, ocol ^ RGB(255, 255, 255));
+        for (int i = 0; i < 3; i++) {
+          ocol = pDC->GetPixel(xsi - 2, ysi - 1 + i);
+          pDC->SetPixel(xsi - 2, ysi - 1 + i, ocol ^ RGB(255, 255, 255));
 
-    ocol = pDC->GetPixel(xsi, ysi + 3);
-    pDC->SetPixel(xsi, ysi + 3, ocol ^ RGB(255, 255, 255));
-    ocol = pDC->GetPixel(xsn, ysn + 3);
-    pDC->SetPixel(xsn, ysn + 3, ocol ^ RGB(255, 255, 255));
+          ocol = pDC->GetPixel(xsi + 2, ysi - 1 + i);
+          pDC->SetPixel(xsi + 2, ysi - 1 + i, ocol ^ RGB(255, 255, 255));
+        }
+      } else {
+        placingNode = 2;      
+      }
 
-    ReleaseDC(pDC);
+      // Draw current
+      for (int i = 0; i < 5; i++) {
+        ocol = pDC->GetPixel(xsn - 2 + i, ysn + 2);
+        pDC->SetPixel(xsn - 2 + i, ysn + 2, ocol ^ RGB(255, 255, 255));
+
+        ocol = pDC->GetPixel(xsn - 2 + i, ysn - 2);
+        pDC->SetPixel(xsn - 2 + i, ysn - 2, ocol ^ RGB(255, 255, 255));
+      }
+
+      for (int i = 0; i < 3; i++) {
+        ocol = pDC->GetPixel(xsn - 2, ysn - 1 + i);
+        pDC->SetPixel(xsn - 2, ysn - 1 + i, ocol ^ RGB(255, 255, 255));
+
+        ocol = pDC->GetPixel(xsn + 2, ysn - 1 + i);
+        pDC->SetPixel(xsn + 2, ysn - 1 + i, ocol ^ RGB(255, 255, 255));
+      }
+
+      ReleaseDC(pDC);
+    } else {
+      placingNode = 0;
+      InvalidateRect(FALSE);
+    }
   }
 
   // AO selection
@@ -1748,6 +1770,7 @@ void CFemmeView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
     OnOpenSelected();
 
   if (nChar == VK_ESCAPE) {
+    placingNode = 0;
     pDoc->UnselectAll();
     FirstPoint = -1;
     ZoomWndFlag = 0;
@@ -1760,6 +1783,10 @@ void CFemmeView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
     CToolBar* pToolBar = &MFrm->m_leftbar;
     CToolBarCtrl* tc = &pToolBar->GetToolBarCtrl();
     tc->PressButton(ID_SELECTWND, FALSE);
+
+    if (UiTweaks) {
+        InvalidateRect(NULL);
+    }
 
     DrawPSLG();
   }
@@ -1964,14 +1991,18 @@ void CFemmeView::OnLButtonDown(UINT nFlags, CPoint point)
     return;
 
   if (EditAction == 0) {
-    pDoc->UpdateUndo();
-    flag = pDoc->AddNode(mx, my, 1. / mag);
-    if (flag == TRUE) {
-      MeshUpToDate = FALSE;
-      if (MeshFlag == TRUE)
-        OnShowMesh();
-      else
-        DrawPSLG();
+    if (UiTweaks) {
+      placingNode = 1;
+    } else {
+      pDoc->UpdateUndo();
+      flag = pDoc->AddNode(mx, my, 1. / mag);
+      if (flag == TRUE) {
+        MeshUpToDate = FALSE;
+        if (MeshFlag == TRUE)
+          OnShowMesh();
+        else
+          DrawPSLG();
+      }
     }
   }
 
@@ -2065,6 +2096,22 @@ void CFemmeView::OnLButtonDown(UINT nFlags, CPoint point)
 
 void CFemmeView::OnLButtonUp(UINT nFlags, CPoint point)
 {
+  if (placingNode > 0) {
+    CFemmeDoc* pDoc = GetDocument();
+    pDoc->UpdateUndo();
+    BOOL flag = pDoc->AddNode(mx, my, 1. / mag);
+    if (flag == TRUE) {
+      MeshUpToDate = FALSE;
+      if (MeshFlag == TRUE)
+        OnShowMesh();
+      else
+        DrawPSLG();
+    }
+
+    placingNode = 0;
+    InvalidateRect(NULL);
+  }
+
   if (bLinehook != FALSE) {
     CView::OnLButtonUp(nFlags, point);
     return;
@@ -2260,6 +2307,11 @@ void CFemmeView::OnLButtonUp(UINT nFlags, CPoint point)
 
 void CFemmeView::OnRButtonDown(UINT nFlags, CPoint point)
 {
+  if (placingNode > 0) {
+    placingNode = 0;
+    InvalidateRect(NULL);
+  }
+
   if (bLinehook != FALSE) {
     CView::OnRButtonDown(nFlags, point);
     return;
