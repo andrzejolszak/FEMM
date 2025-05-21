@@ -133,6 +133,7 @@ class CFemmeView : public CView {
   afx_msg void OnMButtonDown(UINT nFlags, CPoint point);
   afx_msg void OnLButtonUp(UINT nFlags, CPoint point);
   afx_msg void OnRButtonDown(UINT nFlags, CPoint point);
+  afx_msg void OnRButtonUp(UINT nFlags, CPoint point);
   afx_msg void OnMakeMesh();
   afx_msg void OnMenuAnalyze();
   afx_msg void OnMenuViewres();

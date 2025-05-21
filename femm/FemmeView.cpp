@@ -61,6 +61,7 @@ ON_COMMAND(ID_ZOOM_WINDOW, OnZoomWnd)
 ON_WM_LBUTTONDOWN()
 ON_WM_LBUTTONUP()
 ON_WM_RBUTTONDOWN()
+ON_WM_RBUTTONUP()
 ON_WM_MBUTTONDOWN()
 ON_COMMAND(ID_MAKE_MESH, OnMakeMesh)
 ON_COMMAND(ID_MENU_ANALYZE, OnMenuAnalyze)
@@ -2307,13 +2308,18 @@ void CFemmeView::OnLButtonUp(UINT nFlags, CPoint point)
 
 void CFemmeView::OnRButtonDown(UINT nFlags, CPoint point)
 {
+  CView::OnRButtonDown(nFlags, point);
+}
+
+void CFemmeView::OnRButtonUp(UINT nFlags, CPoint point)
+{
   if (placingNode > 0) {
     placingNode = 0;
     InvalidateRect(NULL);
   }
 
   if (bLinehook != FALSE) {
-    CView::OnRButtonDown(nFlags, point);
+    CView::OnRButtonUp(nFlags, point);
     return;
   }
 
@@ -2423,7 +2429,7 @@ void CFemmeView::OnRButtonDown(UINT nFlags, CPoint point)
     DrawPSLG();
   }
 
-  CView::OnRButtonDown(nFlags, point);
+  CView::OnRButtonUp(nFlags, point);
 }
 
 void CFemmeView::OnLButtonDblClk(UINT nFlags, CPoint point)
