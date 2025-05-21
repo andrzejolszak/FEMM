@@ -1204,6 +1204,21 @@ void CFemmeView::OnMouseMove(UINT nFlags, CPoint point)
     y = GridSize * floor(0.5 + y / GridSize);
   }
 
+  if ((nFlags & MK_RBUTTON) == MK_RBUTTON && UiTweaks) {
+    int xsi, ysi, xsn, ysn;
+    DwgToScreen(rmbStartX, rmbStartY, &xsi, &ysi, &r);
+    DwgToScreen(x, y, &xsn, &ysn, &r);
+
+    if (abs(xsi - xsn) + abs(xsi - ysn) > 10 && rmbAreaSelection == 0) {
+      SelectWndFlag = 2;
+      wzx = rmbStartX;
+      wzy = rmbStartY;
+      rmbAreaSelection = 1;
+    }
+  } else {
+    rmbAreaSelection = 0;
+  }
+
   if (placingNode > 0)
   {
     if ((nFlags & MK_LBUTTON) == MK_LBUTTON) {
@@ -1686,6 +1701,7 @@ void CFemmeView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
       OnMenuViewres();
 
     if (nChar == VK_F5) {
+      pDoc->UnselectAll();
       InvalidateRect(NULL);
     }
 
@@ -2308,14 +2324,107 @@ void CFemmeView::OnLButtonUp(UINT nFlags, CPoint point)
 
 void CFemmeView::OnRButtonDown(UINT nFlags, CPoint point)
 {
+  rmbStartX = mx;
+  rmbStartY = my;
+  rmbAreaSelection = 0;
   CView::OnRButtonDown(nFlags, point);
 }
 
 void CFemmeView::OnRButtonUp(UINT nFlags, CPoint point)
 {
+  if (rmbAreaSelection > 0 && SelectWndFlag == 2) {
+    CMainFrame* MFrm;
+    MFrm = (CMainFrame*)GetTopLevelFrame();
+    CMenu* MMnu = MFrm->GetMenu();
+    CToolBar* pToolBar = &MFrm->m_leftbar;
+    CToolBarCtrl* tc = &pToolBar->GetToolBarCtrl();
+    tc->PressButton(ID_SELECTWND, FALSE);
+
+
+    int i, k;
+    double x, y, z;
+    CFemmeDoc* pDoc = GetDocument();
+    SelectWndFlag = 0;
+    if ((mx == wzx) && (my == wzy)) {
+      InvalidateRect(NULL);
+      return;
+    }
+    if (mx < wzx) {
+      z = wzx;
+      wzx = mx;
+      mx = z;
+    }
+    if (my < wzy) {
+      z = wzy;
+      wzy = my;
+      my = z;
+    }
+
+    if ((nFlags & VK_SHIFT) != VK_SHIFT) {
+      pDoc->UnselectAll();
+    }
+
+    if ((EditAction == 0) || (EditAction == 4)) {
+      for (i = 0; i < pDoc->nodelist.GetSize(); i++) {
+        x = pDoc->nodelist[i].x;
+        y = pDoc->nodelist[i].y;
+        if ((x <= mx) && (x >= wzx) && (y <= my) && (y >= wzy))
+          pDoc->nodelist[i].IsSelected = TRUE;
+      }
+    }
+
+    if ((EditAction == 2) || (EditAction == 4)) {
+      for (i = 0; i < pDoc->blocklist.GetSize(); i++) {
+        x = pDoc->blocklist[i].x;
+        y = pDoc->blocklist[i].y;
+        if ((x <= mx) && (x >= wzx) && (y <= my) && (y >= wzy))
+          pDoc->blocklist[i].IsSelected = TRUE;
+      }
+    }
+
+    if ((EditAction == 1) || (EditAction == 4)) {
+      for (i = 0; i < pDoc->linelist.GetSize(); i++) {
+        k = 0;
+        x = pDoc->nodelist[pDoc->linelist[i].n0].x;
+        y = pDoc->nodelist[pDoc->linelist[i].n0].y;
+        if ((x <= mx) && (x >= wzx) && (y <= my) && (y >= wzy))
+          k++;
+        x = pDoc->nodelist[pDoc->linelist[i].n1].x;
+        y = pDoc->nodelist[pDoc->linelist[i].n1].y;
+        if ((x <= mx) && (x >= wzx) && (y <= my) && (y >= wzy))
+          k++;
+
+        if (k == 2)
+          pDoc->linelist[i].IsSelected = TRUE;
+      }
+    }
+
+    if ((EditAction == 3) || (EditAction == 4)) {
+      for (i = 0; i < pDoc->arclist.GetSize(); i++) {
+        k = 0;
+        x = pDoc->nodelist[pDoc->arclist[i].n0].x;
+        y = pDoc->nodelist[pDoc->arclist[i].n0].y;
+        if ((x <= mx) && (x >= wzx) && (y <= my) && (y >= wzy))
+          k++;
+        x = pDoc->nodelist[pDoc->arclist[i].n1].x;
+        y = pDoc->nodelist[pDoc->arclist[i].n1].y;
+        if ((x <= mx) && (x >= wzx) && (y <= my) && (y >= wzy))
+          k++;
+
+        if (k == 2)
+          pDoc->arclist[i].IsSelected = TRUE;
+      }
+    }
+    InvalidateRect(NULL);
+    CView::OnRButtonUp(nFlags, point);
+    return;
+  }
+
   if (placingNode > 0) {
     placingNode = 0;
     InvalidateRect(NULL);
+    CView::OnRButtonUp(nFlags, point);
+    return;
   }
 
   if (bLinehook != FALSE) {

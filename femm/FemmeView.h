@@ -45,6 +45,8 @@ class CFemmeView : public CView {
   double wzx, wzy;
   int placingNode;
   double MaxSeg, ArcAngle;
+  double rmbStartX, rmbStartY;
+  double rmbAreaSelection;
 
   BOOL UiTweaks;
 
