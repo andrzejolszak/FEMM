@@ -187,6 +187,8 @@ class CFemmviewView : public CView {
   afx_msg void OnZoomOut();
   afx_msg void OnZoomWindow();
   afx_msg void OnMouseMove(UINT nFlags, CPoint point);
+  afx_msg BOOL OnMouseWheel(UINT nFlags, short delta, CPoint point);
+  afx_msg void OnMButtonDown(UINT nFlags, CPoint point);
   afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
   afx_msg void OnLButtonUp(UINT nFlags, CPoint point);
   afx_msg void OnRButtonDown(UINT nFlags, CPoint point);

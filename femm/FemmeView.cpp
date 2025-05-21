@@ -713,6 +713,35 @@ void CFemmeView::OnDraw(CDC* pDC)
     pDC->SelectObject(pOldPen);
   }
 
+  // Fill material areas
+  if (UiTweaks) {
+    for (i = 0; i < pDoc->blocklist.GetSize(); i++) {
+      DwgToScreen(pDoc->blocklist[i].x, pDoc->blocklist[i].y, &xs, &ys, &r);
+
+      // circle approximately showing area constraint...
+      if (pDoc->blocklist[i].BlockType != "<No Mesh>" && pDoc->blocklist[i].BlockType != "<None>") {
+        COLORREF color = RGB(245, 245, 245);
+        if (pDoc->blocklist[i].BlockType == "Air") {
+          color = RGB(245, 250, 255);
+        } else {
+          if (pDoc->blocklist[i].MagDir > 0) {
+            color = RGB(210, 210, 255);
+          }
+          if (pDoc->blocklist[i].MagDir < 0) {
+            color = RGB(255, 210, 210);
+          }
+          if (pDoc->blocklist[i].Turns > 1) {
+            color = RGB(255, 200, 50);
+          }
+        }
+        CBrush cb(color);
+        pDC->SelectObject(&cb);
+        pDC->ExtFloodFill(xs, ys, RGB(255, 255, 255), FLOODFILLSURFACE);
+        DeleteObject(cb);
+      }
+    }
+  }
+
   // Draw block labels
   for (i = 0; i < pDoc->blocklist.GetSize(); i++) {
     DwgToScreen(pDoc->blocklist[i].x, pDoc->blocklist[i].y, &xs, &ys, &r);
@@ -1101,12 +1130,32 @@ void CFemmeView::OnGroupOp()
 
 BOOL CFemmeView::OnMouseWheel(UINT nFlags, short delta, CPoint point)
 {
+  RECT r;
+  double x, y;
+
+  GetClientRect(&r);
+  x = r.right;
+  y = r.bottom;
+
+  int xs, ys;
+  DwgToScreen(mx, my, &xs, &ys, &r);
+  double mouseXBias = xs / x;
+  double mouseYBias = 1 - ys / y;
+
   if (UiTweaks && delta > 0) {
-    OnZoomIn();
+    ox = ox + mouseXBias * 0.5 * x / mag;
+    oy = oy + mouseYBias * 0.5 * y / mag;
+    mag *= 2;
+
+    InvalidateRect(NULL);
   }
 
   if (UiTweaks && delta < 0) {
-    OnZoomOut();
+    ox = ox - mouseXBias * 1 * x / mag;
+    oy = oy - mouseYBias * 1 * y / mag;
+    mag /= 2.;
+
+    InvalidateRect(NULL);
   }
 
   return CView::OnMouseWheel(nFlags, delta, point);
@@ -1152,6 +1201,40 @@ void CFemmeView::OnMouseMove(UINT nFlags, CPoint point)
   if ((SnapFlag == TRUE) && ((EditAction == 0) || (EditAction == 2))) {
     x = GridSize * floor(0.5 + x / GridSize);
     y = GridSize * floor(0.5 + y / GridSize);
+  }
+
+  // AO TODO
+  if (SelectWndFlag == 0)
+  {
+    CDC* pDC = GetDC();
+    RECT re;
+    GetClientRect(&re);
+    int xsi, ysi, xsn, ysn;
+    DwgToScreen(mx, my, &xsi, &ysi, &re);
+    DwgToScreen(x, y, &xsn, &ysn, &re);
+
+    COLORREF ocol;
+    ocol = pDC->GetPixel(xsi - 3, ysi);
+    pDC->SetPixel(xsi - 3, ysi, ocol ^ RGB(255, 255, 255));
+    ocol = pDC->GetPixel(xsn - 3, ysn);
+    pDC->SetPixel(xsn - 3, ysn, ocol ^ RGB(255, 255, 255));
+
+    ocol = pDC->GetPixel(xsi + 3, ysi);
+    pDC->SetPixel(xsi + 3, ysi, ocol ^ RGB(255, 255, 255));
+    ocol = pDC->GetPixel(xsn + 3, ysn);
+    pDC->SetPixel(xsn + 3, ysn, ocol ^ RGB(255, 255, 255));
+
+    ocol = pDC->GetPixel(xsi, ysi - 3);
+    pDC->SetPixel(xsi, ysi - 3, ocol ^ RGB(255, 255, 255));
+    ocol = pDC->GetPixel(xsn, ysn - 3);
+    pDC->SetPixel(xsn, ysn - 3, ocol ^ RGB(255, 255, 255));
+
+    ocol = pDC->GetPixel(xsi, ysi + 3);
+    pDC->SetPixel(xsi, ysi + 3, ocol ^ RGB(255, 255, 255));
+    ocol = pDC->GetPixel(xsn, ysn + 3);
+    pDC->SetPixel(xsn, ysn + 3, ocol ^ RGB(255, 255, 255));
+
+    ReleaseDC(pDC);
   }
 
   // AO selection
@@ -1580,9 +1663,7 @@ void CFemmeView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
       OnMenuViewres();
 
     if (nChar == VK_F5) {
-      OnMakeMesh();
-      OnMenuAnalyze();
-      OnMenuViewres();
+      InvalidateRect(NULL);
     }
 
     // Translate

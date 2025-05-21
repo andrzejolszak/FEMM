@@ -62,6 +62,8 @@ ON_COMMAND(ID_ZOOM_NATURAL, OnZoomNatural)
 ON_COMMAND(ID_ZOOM_OUT, OnZoomOut)
 ON_COMMAND(ID_ZOOM_WINDOW, OnZoomWindow)
 ON_WM_MOUSEMOVE()
+ON_WM_MOUSEWHEEL()
+ON_WM_MBUTTONDOWN()
 ON_WM_LBUTTONDOWN()
 ON_WM_LBUTTONUP()
 ON_WM_RBUTTONDOWN()
@@ -225,7 +227,6 @@ CFemmviewView::CFemmviewView()
   BinDir = ((CFemmApp*)AfxGetApp())->GetExecutablePath();
 
   ScanPreferences();
-
 
   // Apply default behaviors
   EditAction = d_EditAction;
@@ -1580,7 +1581,48 @@ CFemmviewDoc* CFemmviewView::GetDocument() // non-debug version is inline
 /////////////////////////////////////////////////////////////////////////////
 // CFemmviewView message handlers
 
-// AO
+BOOL CFemmviewView::OnMouseWheel(UINT nFlags, short delta, CPoint point)
+{
+  RECT r;
+  double x, y;
+
+  GetClientRect(&r);
+  x = r.right;
+  y = r.bottom;
+
+  int xs, ys;
+  DwgToScreen(mx, my, &xs, &ys, &r);
+  double mouseXBias = xs / x;
+  double mouseYBias = 1 - ys / y;
+
+  if (UiTweaks && delta > 0) {
+    ox = ox + mouseXBias * 0.5 * x / mag;
+    oy = oy + mouseYBias * 0.5 * y / mag;
+    mag *= 2;
+
+    InvalidateRect(NULL);
+  }
+
+  if (UiTweaks && delta < 0) {
+    ox = ox - mouseXBias * 1 * x / mag;
+    oy = oy - mouseYBias * 1 * y / mag;
+    mag /= 2.;
+
+    InvalidateRect(NULL);
+  }
+
+  return CView::OnMouseWheel(nFlags, delta, point);
+}
+
+void CFemmviewView::OnMButtonDown(UINT nFlags, CPoint point)
+{
+  if (UiTweaks) {
+    OnZoomNatural();
+  }
+
+  CView::OnMButtonDown(nFlags, point);
+}
+
 void CFemmviewView::OnMouseMove(UINT nFlags, CPoint point)
 {
   if ((bLinehook == NormalLua) || (bLinehook == HiddenLua)) {
