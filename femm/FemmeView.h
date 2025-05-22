@@ -47,6 +47,7 @@ class CFemmeView : public CView {
   double MaxSeg, ArcAngle;
   double rmbStartX, rmbStartY;
   double rmbAreaSelection;
+  int autoConnect;
 
   BOOL UiTweaks;
 

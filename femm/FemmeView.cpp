@@ -159,6 +159,8 @@ CFemmeView::CFemmeView()
   SelectCircFlag = FALSE;
   MaxSeg = 1.0;
   ArcAngle = 90.0;
+  autoConnect = 0;
+  placingNode = 0;
 }
 
 void CFemmeView::OnNewDocument()
@@ -1268,6 +1270,44 @@ void CFemmeView::OnMouseMove(UINT nFlags, CPoint point)
         pDC->SetPixel(xsn + 2, ysn - 1 + i, ocol ^ RGB(255, 255, 255));
       }
 
+      // Draw the line
+      pDC->SetROP2(R2_XORPEN);
+      CPen penXor;
+      penXor.CreatePen(PS_SOLID, 1, RGB(255, 255, 255));
+      pDC->SelectObject(&penXor);
+
+      // Remove prev
+      if (autoConnect > 0 && pDoc->nodelist.GetCount() > 0) {
+        double xx = pDoc->nodelist[pDoc->nodelist.GetCount() - 1].x;
+        double yy = pDoc->nodelist[pDoc->nodelist.GetCount() - 1].y;
+        int xxs, yys;
+        DwgToScreen(xx, yy, &xxs, &yys, &re);
+        
+        MyMoveTo(pDC, xxs, yys);
+        MyLineTo(pDC, xsi, ysi);
+      }
+
+      if ((GetKeyState(VK_SHIFT) & 0x8000) && pDoc->nodelist.GetCount() > 0) {
+        if (autoConnect < 2) {
+          autoConnect++;
+        }
+      } else {
+        if (autoConnect > 0) {
+          autoConnect--;
+        }
+      }
+
+      // Draw current
+      if (autoConnect > 0 && pDoc->nodelist.GetCount() > 0) {
+        double xx = pDoc->nodelist[pDoc->nodelist.GetCount() - 1].x;
+        double yy = pDoc->nodelist[pDoc->nodelist.GetCount() - 1].y;
+        int xxs, yys;
+        DwgToScreen(xx, yy, &xxs, &yys, &re);
+
+        MyMoveTo(pDC, xxs, yys);
+        MyLineTo(pDC, xsn, ysn);
+      }
+
       // TODO draw VK_SHIFT line
       // https://stackoverflow.com/questions/20167274/is-it-possible-to-create-an-xor-pen-like-drawfocusrect
 
@@ -2128,7 +2168,7 @@ void CFemmeView::OnLButtonUp(UINT nFlags, CPoint point)
         DrawPSLG();
     }
 
-    if (placingNode && GetKeyState(VK_SHIFT) & 0x8000 && pDoc->nodelist.GetSize() > 1) {
+    if (placingNode && GetKeyState(VK_SHIFT) & 0x8000 && pDoc->nodelist.GetCount() > 1) {
       BOOL flag = pDoc->AddSegment(pDoc->nodelist.GetSize() - 2, pDoc->nodelist.GetSize() - 1);
       if (flag == TRUE) {
         MeshUpToDate = FALSE;
