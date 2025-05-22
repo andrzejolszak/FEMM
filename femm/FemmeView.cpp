@@ -1268,6 +1268,9 @@ void CFemmeView::OnMouseMove(UINT nFlags, CPoint point)
         pDC->SetPixel(xsn + 2, ysn - 1 + i, ocol ^ RGB(255, 255, 255));
       }
 
+      // TODO draw VK_SHIFT line
+      // https://stackoverflow.com/questions/20167274/is-it-possible-to-create-an-xor-pen-like-drawfocusrect
+
       ReleaseDC(pDC);
     } else {
       placingNode = 0;
@@ -2112,7 +2115,7 @@ void CFemmeView::OnLButtonDown(UINT nFlags, CPoint point)
 }
 
 void CFemmeView::OnLButtonUp(UINT nFlags, CPoint point)
-{
+{  
   if (placingNode > 0) {
     CFemmeDoc* pDoc = GetDocument();
     pDoc->UpdateUndo();
@@ -2122,6 +2125,18 @@ void CFemmeView::OnLButtonUp(UINT nFlags, CPoint point)
       if (MeshFlag == TRUE)
         OnShowMesh();
       else
+        DrawPSLG();
+    }
+
+    if (placingNode && GetKeyState(VK_SHIFT) & 0x8000 && pDoc->nodelist.GetSize() > 1) {
+      BOOL flag = pDoc->AddSegment(pDoc->nodelist.GetSize() - 2, pDoc->nodelist.GetSize() - 1);
+      if (flag == TRUE) {
+        MeshUpToDate = FALSE;
+        if (MeshFlag == TRUE)
+          OnShowMesh();
+        else
+          DrawPSLG();
+      } else
         DrawPSLG();
     }
 
