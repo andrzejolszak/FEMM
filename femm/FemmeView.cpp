@@ -524,7 +524,6 @@ BOOL CFemmeView::DwgToScreen(double xd, double yd, int* xs, int* ys, RECT* r)
   return TRUE;
 }
 
-// AO
 void CFemmeView::OnDraw(CDC* pDC)
 {
   CFemmeDoc* pDoc = GetDocument();
@@ -726,29 +725,44 @@ void CFemmeView::OnDraw(CDC* pDC)
 
   // Fill material areas
   if (UiTweaks) {
+    CBrush airBrush(HS_BDIAGONAL, RGB(215, 230, 255));
+    CBrush magnetBrush(RGB(255, 220, 210));
+    CBrush coilBrush(RGB(255, 200, 50));
+    CBrush nonMagnetBrush(RGB(230, 235, 230));
+
     for (i = 0; i < pDoc->blocklist.GetSize(); i++) {
       DwgToScreen(pDoc->blocklist[i].x, pDoc->blocklist[i].y, &xs, &ys, &r);
 
       // circle approximately showing area constraint...
       if (pDoc->blocklist[i].BlockType != "<No Mesh>" && pDoc->blocklist[i].BlockType != "<None>") {
-        COLORREF color = RGB(245, 245, 245);
         if (pDoc->blocklist[i].BlockType == "Air") {
-          color = RGB(245, 250, 255);
+          pDC->SelectObject(&airBrush);
+          pDC->ExtFloodFill(xs, ys, RGB(255, 255, 255), FLOODFILLSURFACE);
         } else {
-          if (pDoc->blocklist[i].MagDir > 0) {
-            color = RGB(210, 210, 255);
+          BOOL isMagnet = FALSE;
+          for (j = 0, k = -1; j < pDoc->blockproplist.GetSize(); j++)
+           if (pDoc->blocklist[i].BlockType == pDoc->blockproplist[j].BlockName) {
+              k = j;
+              break;
+            }
+          if (k >= 0)
+            if ((pDoc->blockproplist[k].H_c != 0) && (pDoc->blocklist[i].MagDirFctn.GetLength() == 0)) {
+              isMagnet = TRUE;
+            }
+
+          if (isMagnet) {
+            pDC->SelectObject(&magnetBrush);
+            pDC->ExtFloodFill(xs, ys, RGB(255, 255, 255), FLOODFILLSURFACE);
           }
-          if (pDoc->blocklist[i].MagDir < 0) {
-            color = RGB(255, 210, 210);
-          }
-          if (pDoc->blocklist[i].Turns > 1) {
-            color = RGB(255, 200, 50);
+          else if (pDoc->blocklist[i].Turns > 1) {
+            // Coil-ish
+            pDC->SelectObject(&coilBrush);
+            pDC->ExtFloodFill(xs, ys, RGB(255, 255, 255), FLOODFILLSURFACE);
+          } else {
+            pDC->SelectObject(&nonMagnetBrush);
+            pDC->ExtFloodFill(xs, ys, RGB(255, 255, 255), FLOODFILLSURFACE);
           }
         }
-        CBrush cb(color);
-        pDC->SelectObject(&cb);
-        pDC->ExtFloodFill(xs, ys, RGB(255, 255, 255), FLOODFILLSURFACE);
-        DeleteObject(cb);
       }
     }
   }
@@ -1321,9 +1335,6 @@ void CFemmeView::OnMouseMove(UINT nFlags, CPoint point)
         MyLineTo(pDC, xsn, ysn);
       }
 
-      // TODO draw VK_SHIFT line
-      // https://stackoverflow.com/questions/20167274/is-it-possible-to-create-an-xor-pen-like-drawfocusrect
-
       ReleaseDC(pDC);
     } else {
       placingNode = 0;
@@ -1331,7 +1342,6 @@ void CFemmeView::OnMouseMove(UINT nFlags, CPoint point)
     }
   }
 
-  // AO selection
   if ((ZoomWndFlag == 2) || (SelectWndFlag == 2)) {
 
     CDC* pDC = GetDC();
@@ -1736,7 +1746,6 @@ void CFemmeView::OnEditCopy()
   CloseClipboard();
 }
 
-// AO
 void CFemmeView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 {
   // TODO: Add your message handler code here and/or call default
@@ -2182,7 +2191,7 @@ void CFemmeView::OnLButtonUp(UINT nFlags, CPoint point)
     }
 
     if (placingNode && GetKeyState(VK_SHIFT) & 0x8000 && pDoc->nodelist.GetCount() > 1) {
-      BOOL flag = pDoc->AddSegment(pDoc->nodelist.GetSize() - 2, pDoc->nodelist.GetSize() - 1);
+      BOOL flag = pDoc->AddSegment((INT)pDoc->nodelist.GetSize() - 2, (INT)pDoc->nodelist.GetSize() - 1);
       if (flag == TRUE) {
         MeshUpToDate = FALSE;
         if (MeshFlag == TRUE)
@@ -2194,6 +2203,7 @@ void CFemmeView::OnLButtonUp(UINT nFlags, CPoint point)
     }
 
     placingNode = 0;
+    autoConnect = 0;
     InvalidateRect(NULL);
   }
 
@@ -3072,7 +3082,6 @@ void CFemmeView::OnKbdZoom()
   }
 }
 
-// AO
 void CFemmeView::OnMoveObjects()
 {
   CCopyDlg dlg;
@@ -3652,7 +3661,6 @@ void WriteColor(char* cname, COLORREF c, FILE* fp)
       GetRValue(c), GetGValue(c), GetBValue(c));
 }
 
-// AO
 BOOL CFemmeView::WritePreferences()
 {
   FILE* fp;

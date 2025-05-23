@@ -889,7 +889,6 @@ BOOL CFemmviewView::Pump()
   return FALSE;
 }
 
-// AO
 void CFemmviewView::OnDraw(CDC* pDC)
 {
   CFemmviewDoc* pDoc = GetDocument();
@@ -2234,7 +2233,6 @@ void CFemmviewView::DisplayPointProperties(double px, double py)
   }
 }
 
-// AO
 void CFemmviewView::OnLButtonDown(UINT nFlags, CPoint point)
 {
   if ((bLinehook != FALSE) || (bOnDraw != FALSE)) {
@@ -2433,7 +2431,6 @@ void CFemmviewView::OnLButtonDown(UINT nFlags, CPoint point)
   CView::OnLButtonDown(nFlags, point);
 }
 
-// AO
 void CFemmviewView::OnLButtonUp(UINT nFlags, CPoint point)
 {
   if (bLinehook != FALSE) {
@@ -2479,7 +2476,6 @@ void CFemmviewView::OnLButtonUp(UINT nFlags, CPoint point)
   CView::OnLButtonUp(nFlags, point);
 }
 
-// AO
 void CFemmviewView::OnRButtonDown(UINT nFlags, CPoint point)
 {
   if (bLinehook != FALSE) {
@@ -2707,7 +2703,6 @@ void CFemmviewView::OnMenuPoint()
   tc->PressButton(ID_MENU_POINT, TRUE);
 }
 
-// AO
 void CFemmviewView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 {
   CFemmviewDoc* pDoc = GetDocument();
@@ -3728,7 +3723,6 @@ BOOL CFemmviewView::OnEraseBkgnd(CDC* pDC)
   return TRUE;
 }
 
-// AO
 void CFemmviewView::OnRButtonDblClk(UINT nFlags, CPoint point)
 {
   CFemmviewDoc* pDoc = GetDocument();
@@ -4333,7 +4327,6 @@ BOOL CFemmviewView::ScanPreferences()
 
 void WriteColor(char* cname, COLORREF c, FILE* fp);
 
-// AO
 BOOL CFemmviewView::WritePreferences()
 {
   FILE* fp;
@@ -4505,7 +4498,6 @@ void CFemmviewView::CheckIt()
   }
 }
 
-// AO
 void CFemmviewView::OnLButtonDblClk(UINT nFlags, CPoint point)
 {
   CFemmviewDoc* pDoc = GetDocument();

@@ -1634,7 +1634,6 @@ char* ParseString(char* t, CString* s)
   return (t + n2 + 1);
 }
 
-// AO
 BOOL CFemmeDoc::OnOpenDocument(LPCTSTR lpszPathName)
 {
   if (!CDocument::OnOpenDocument(lpszPathName))
@@ -2428,7 +2427,6 @@ BOOL CFemmeDoc::OnOpenDocument(LPCTSTR lpszPathName)
   return TRUE;
 }
 
-// AO
 BOOL CFemmeDoc::OnSaveDocument(LPCTSTR lpszPathName)
 {
   // TODO: Add your specialized code here and/or call the base class
