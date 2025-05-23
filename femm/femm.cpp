@@ -238,6 +238,7 @@ BOOL CFemmApp::InitInstance()
 
   pApp = this;
   NumViews = 0;
+  UiTweaks = FALSE;
 
   // Register the application's document templates.  Document templates
   //  serve as the connection between documents, frame windows and views.

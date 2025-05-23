@@ -43,6 +43,7 @@ class CFemmApp : public CWinApp {
 
   int NumViews;
   int luaShowWindow;
+  BOOL UiTweaks;
 
 #ifdef MATHLINK
   static int lua_to_mathematica(lua_State* L);

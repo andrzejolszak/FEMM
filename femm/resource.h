@@ -842,6 +842,7 @@
 #define ID_CREATERADIUS 32845
 #define ID_BUTTON32953 32846
 #define ID_EDIT_CREATEOPENBOUNDARY 32847
+#define ID_VIEW_UITWEAKS 32848
 #define ID_BUTTON32854 32854
 
 // Next default values for new objects

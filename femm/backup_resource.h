@@ -785,6 +785,7 @@
 #define ID_EDIT_EXTERIOR 32844
 #define ID_CREATERADIUS 32845
 #define ID_BUTTON32953 32846
+#define ID_VIEW_UITWEAKS 32848
 
 // Next default values for new objects
 //

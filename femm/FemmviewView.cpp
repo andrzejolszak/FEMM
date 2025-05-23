@@ -124,7 +124,7 @@ CFemmviewView::CFemmviewView()
 {
   ((CFemmApp*)AfxGetApp())->NumViews++;
 
-  UiTweaks = TRUE;
+  UiTweaks = ((CFemmApp*)AfxGetApp())->UiTweaks;
 
   // TODO: add construction code here
   d_EditAction = 0;

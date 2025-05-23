@@ -69,6 +69,7 @@ class CFemmeView : public CView {
   BOOL d_snapgrid; //=FALSE;
   BOOL d_showorigin;
   BOOL d_shownames;
+  BOOL d_uitweaks;
 
   CString BinDir; // pathname for other FEMM executables
   CArray<CZPix, CZPix&> ZoomPix;
@@ -162,6 +163,7 @@ class CFemmeView : public CView {
   afx_msg void OnEditCut();
   afx_msg void OnEditCopyAsMetafile();
   afx_msg void OnViewShownames();
+  afx_msg void OnViewUiTweaks();
   afx_msg void OnFDSelectCirc();
   afx_msg void OnViewShowOrphans();
   afx_msg void OnCreateRadius();

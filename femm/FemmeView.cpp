@@ -91,6 +91,7 @@ ON_COMMAND(ID_VIEW_SHOWNAMES, OnViewShownames)
 ON_COMMAND(ID_FD_SELECTCIRC, OnFDSelectCirc)
 ON_COMMAND(ID_VIEW_SHOWORPHANS, OnViewShowOrphans)
 ON_COMMAND(ID_CREATERADIUS, OnCreateRadius)
+ON_COMMAND(ID_VIEW_UITWEAKS, OnViewUiTweaks)
 ON_UPDATE_COMMAND_UI(ID_EDIT_EXTERIOR, OnUpdateEditExterior)
 //}}AFX_MSG_MAP
 // Standard printing commands
@@ -114,8 +115,6 @@ CFemmeView::CFemmeView()
 {
   ((CFemmApp*)AfxGetApp())->NumViews++;
 
-  UiTweaks = TRUE;
-
   // Default Colors
   SelColor = dSelColor;
   MeshColor = dMeshColor;
@@ -135,6 +134,7 @@ CFemmeView::CFemmeView()
   d_snapgrid = FALSE;
   d_showorigin = FALSE;
   d_shownames = TRUE;
+  d_uitweaks = ((CFemmApp*)AfxGetApp())->UiTweaks;
 
   // Load an updated color map, if it exists
 
@@ -151,6 +151,7 @@ CFemmeView::CFemmeView()
   GridFlag = d_showgrid;
   SnapFlag = d_snapgrid;
   ShowNames = d_shownames;
+  UiTweaks = d_uitweaks;
   MeshFlag = FALSE;
   FirstPoint = -1;
   ZoomWndFlag = FALSE;
@@ -173,6 +174,7 @@ void CFemmeView::OnNewDocument()
   GridFlag = d_showgrid;
   SnapFlag = d_snapgrid;
   ShowNames = d_shownames;
+  UiTweaks = d_uitweaks;
   MeshFlag = FALSE;
   FirstPoint = -1;
   ZoomWndFlag = FALSE;
@@ -250,6 +252,12 @@ void CFemmeView::OnNewDocument()
     MMnu->CheckMenuItem(ID_VIEW_SHOWNAMES, MF_CHECKED);
   } else {
     MMnu->CheckMenuItem(ID_VIEW_SHOWNAMES, MF_UNCHECKED);
+  }
+
+  if (d_uitweaks == TRUE) {
+    MMnu->CheckMenuItem(ID_VIEW_UITWEAKS, MF_CHECKED);
+  } else {
+    MMnu->CheckMenuItem(ID_VIEW_UITWEAKS, MF_UNCHECKED);
   }
 }
 
@@ -925,6 +933,12 @@ void CFemmeView::CheckIt()
   } else {
     MMnu->CheckMenuItem(ID_VIEW_SHOWNAMES, MF_UNCHECKED);
   }
+
+  if (UiTweaks == TRUE) {
+    MMnu->CheckMenuItem(ID_VIEW_UITWEAKS, MF_CHECKED);
+  } else {
+    MMnu->CheckMenuItem(ID_VIEW_UITWEAKS, MF_UNCHECKED);
+  }
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -1221,8 +1235,7 @@ void CFemmeView::OnMouseMove(UINT nFlags, CPoint point)
     rmbAreaSelection = 0;
   }
 
-  if (placingNode > 0)
-  {
+  if (placingNode > 0) {
     if ((nFlags & MK_LBUTTON) == MK_LBUTTON) {
       CDC* pDC = GetDC();
       RECT re;
@@ -1250,7 +1263,7 @@ void CFemmeView::OnMouseMove(UINT nFlags, CPoint point)
           pDC->SetPixel(xsi + 2, ysi - 1 + i, ocol ^ RGB(255, 255, 255));
         }
       } else {
-        placingNode = 2;      
+        placingNode = 2;
       }
 
       // Draw current
@@ -1282,7 +1295,7 @@ void CFemmeView::OnMouseMove(UINT nFlags, CPoint point)
         double yy = pDoc->nodelist[pDoc->nodelist.GetCount() - 1].y;
         int xxs, yys;
         DwgToScreen(xx, yy, &xxs, &yys, &re);
-        
+
         MyMoveTo(pDC, xxs, yys);
         MyLineTo(pDC, xsi, ysi);
       }
@@ -1845,7 +1858,7 @@ void CFemmeView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
     tc->PressButton(ID_SELECTWND, FALSE);
 
     if (UiTweaks) {
-        InvalidateRect(NULL);
+      InvalidateRect(NULL);
     }
 
     DrawPSLG();
@@ -2155,7 +2168,7 @@ void CFemmeView::OnLButtonDown(UINT nFlags, CPoint point)
 }
 
 void CFemmeView::OnLButtonUp(UINT nFlags, CPoint point)
-{  
+{
   if (placingNode > 0) {
     CFemmeDoc* pDoc = GetDocument();
     pDoc->UpdateUndo();
@@ -2394,7 +2407,6 @@ void CFemmeView::OnRButtonUp(UINT nFlags, CPoint point)
     CToolBar* pToolBar = &MFrm->m_leftbar;
     CToolBarCtrl* tc = &pToolBar->GetToolBarCtrl();
     tc->PressButton(ID_SELECTWND, FALSE);
-
 
     int i, k;
     double x, y, z;
@@ -3685,6 +3697,13 @@ void CFemmeView::OnViewShownames()
 {
 
   ShowNames = 1 - ShowNames;
+  InvalidateRect(NULL);
+}
+
+void CFemmeView::OnViewUiTweaks()
+{
+  UiTweaks = 1 - UiTweaks;
+  ((CFemmApp*)AfxGetApp())->UiTweaks = UiTweaks;
   InvalidateRect(NULL);
 }
 
