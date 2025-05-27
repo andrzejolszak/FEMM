@@ -1,5 +1,41 @@
 ﻿FEMM 4.2 22Oct2023
 
+05Jun2025
+
+* Added a set of opt-in UI usability/model editing tweaks for magnetics problems.
+  The 'UI Tweaks' mode can be enabled in the View menu. All the below listed
+  changes are a part of it:
+* Simple flood-fill coloring of editor regions for air, magnets, coils, etc.
+  This is also the most immediate visual cue for the 'UI Tweaks' mode being
+  activated or not.
+* Zoom in and out using the mouse wheel scroll. Both in model editor and plot.
+  Zooming is aware of mouse position, so that you can simply point at the area
+  that you want to zoom into. Clicking the scroll whell triggers auto-zoom.
+* Translation of selected elements using the WASD keys. The translation step
+  is 1/10th of the grid size, or grid size if holding SHIFT.
+* The plot window will remember the settings for min and max values of plots,
+  through repeated editing the model, re-running the mesh and simulation.
+  This is to all for visual comparability between model revisions along the
+  lines of "what would change if I move the magnet two units to the left?".
+  Closing the plot window resets this and allows the next simulation run
+  to derive the new values.
+* Pressing down the left mouse button in editor does not place the node
+  but only previews it so that it can be moved around for more precision.
+  Releasing the left mouse button will place it. Pressing the right mouse
+  button or typing ESC will cancel the previewed place operation.
+* If you press and hold the right mouse button down and move the cursor by 10px,
+  it will activate the rectangular region selection mode instead of selecting
+  the single closest element as usual.
+* Simplified adding of segments: while adding a new node if you hold down
+  the SHIFT key, the new node will get automatically connected via a
+  segment with the previously placed node. The segment will get previewed while
+  holding down the left mouse button and SHIFT.
+* Pressing key '1' creates mesh, key '2' runs the simulation, key '3' opens
+  the plot window. Saves a couple of mouse clicks...
+* "Created mesh" is a status message instead of a modal window.
+* Pressing F5 will reset selection and trigger a full redraw of the model.
+  This is as an escape hatch for any rendering/selection issues or artifacts.
+
 22Oct2023
 
 * Updated radiation boundary condition in thermal problems so that convective
