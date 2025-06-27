@@ -1,10 +1,12 @@
-﻿FEMM 4.2 22Oct2023
+﻿FEMM 4.2.1 05Jun2025
+
+![](speakerMotor.png)
 
 05Jun2025
 
-* Added a set of opt-in UI usability/model editing tweaks for magnetics problems.
-  The 'UI Tweaks' mode can be enabled in the View menu. All the below listed
-  changes are a part of it:
+* Added a set of UI usability/model editing tweaks for magnetics problems.
+  The 'UI Tweaks' mode is enabled by default, but can be disabled in the View menu.
+  All the below listed changes are a part of it:
 * Simple flood-fill coloring of editor regions for air, magnets, coils, etc.
   This is also the most immediate visual cue for the 'UI Tweaks' mode being
   activated or not.
@@ -223,12 +225,12 @@
     specified point is exactly on the line between two elements
   - Lua command to programmatically turn off "smart mesh" with the 
     smartmesh(state) Lua command.  State is 0 for no "smart mesh" and 1
-	for "smart mesh".  Function has the same name in the Matlab interface
-	and is named SmartMesh in the Mathematica implementation
+    for "smart mesh".  Function has the same name in the Matlab interface
+    and is named SmartMesh in the Mathematica implementation
   - Fixed bug where "mo_zoom", "eo_zoom", etc. didn't work right
   - Fixed an issue where the right energy / flux linkage was not reported
     for wound coils in AC magnetic problems if the frequency is very 
-	small (e.g. <1μHz)
+    small (e.g. <1μHz)
 * For increased compatibility with Mathematica 10, the Mathematica interface
   has been changed to use .NET/Link when it is available (instead of
   MathLink).  .NET/Link invokes FEMM as an out-of-proc ActiveX server 

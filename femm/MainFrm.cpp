@@ -94,9 +94,9 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
   // flash up title;
   {
     CString s;
-    s = "Femm 4.2\r\n";
+    s = "Femm 4.2.1\r\n";
     s += "Magnetics finite element suite\r\n";
-    s += "Copyright 1998-2023\r\n\r\n";
+    s += "Copyright 1998-2025\r\n\r\n";
     s += "David Meeker\r\ndmeeker@ieee.org\r\n";
     s += "https://www.femm.info";
     m_dlgBar.SetDlgItemText(IDC_OUTBOX, s);
